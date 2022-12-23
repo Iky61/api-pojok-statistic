@@ -26,12 +26,11 @@ class TurnoverApiView(APIView):
         Y = df[target[0]].tolist()
 
         data = []
-        for x,y in zip(X, Y):
-            value = {'label':x, 'data':y}
+        for x, y in zip(X, Y):
+            value = {'label': x, 'data': y}
             data.append(value)
 
         return data
-
 
     def post(self, request, *args, **kwargs):
         serializers = TurnoverSerializer(data=request.data)
@@ -63,7 +62,7 @@ class TurnoverApiView(APIView):
             filename = '_'.join(file.name.split())
             dirname = (os.path.dirname(
                 os.path.abspath(__file__)) + '/uploads/' + filename)
-            
+
             # read file from ./uploads and analyze
             data = self.Bar_plot(filename=dirname)
 
