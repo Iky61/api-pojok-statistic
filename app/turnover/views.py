@@ -4,8 +4,35 @@ from rest_framework.response import Response
 from rest_framework import status
 from .serializers import TurnoverSerializer
 
+import pandas as pd
+
 
 class TurnoverApiView(APIView):
+    def Bar_plot(self, filename):
+        df = pd.read_excel(filename)
+        cols = df.columns.tolist()
+        feature = []
+        target = []
+
+        for x in cols:
+            if df[x].dtype == 'O':
+                feature.append(x)
+            else:
+                target.append(x)
+
+        df = df.groupby(feature[0])[[target[0]]].sum().reset_index()
+
+        X = df[feature[0]].tolist()
+        Y = df[target[0]].tolist()
+
+        data = []
+        for x,y in zip(X, Y):
+            value = {'label':x, 'data':y}
+            data.append(value)
+
+        return data
+
+
     def post(self, request, *args, **kwargs):
         serializers = TurnoverSerializer(data=request.data)
 
@@ -33,13 +60,13 @@ class TurnoverApiView(APIView):
             # save file for temporary analyze usage
             serializers.save()
 
-            # TODO: Analyze & return graph data
-            # read file from ./uploads and analyze
-            data = {}
-
-            # delete uploaded file & return response
+            filename = '_'.join(file.name.split())
             dirname = (os.path.dirname(
-                os.path.abspath(__file__)) + '/uploads/' + file.name)
+                os.path.abspath(__file__)) + '/uploads/' + filename)
+            
+            # read file from ./uploads and analyze
+            data = self.Bar_plot(filename=dirname)
+
             os.remove(dirname)
 
             return Response({
