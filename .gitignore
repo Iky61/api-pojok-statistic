@@ -1,2 +1,5 @@
 # dist / package
 env/
+
+# uploads
+/app/turnover/uploads/*.xlsx
