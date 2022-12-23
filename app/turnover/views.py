@@ -16,7 +16,7 @@ class TurnoverApiView(APIView):
             if file.content_type != 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
                 return Response({
                     'message': 'Error',
-                    'code': 400,
+                    'code': status.HTTP_400_BAD_REQUEST,
                     'error': 'invalid file type',
                     'data': None
                 }, status=status.HTTP_400_BAD_REQUEST)
@@ -25,7 +25,7 @@ class TurnoverApiView(APIView):
             if not file:
                 return Response({
                     'message': 'Error',
-                    'code': '400',
+                    'code': status.HTTP_400_BAD_REQUEST,
                     'error': 'invalid file',
                     'data': None
                 }, status=status.HTTP_400_BAD_REQUEST)
@@ -44,7 +44,7 @@ class TurnoverApiView(APIView):
 
             return Response({
                 'message': 'Success',
-                'code': 201,
+                'code': status.HTTP_201_CREATED,
                 'error': '',
                 'data': data
             }, status=status.HTTP_201_CREATED)
