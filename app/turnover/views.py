@@ -40,7 +40,7 @@ class TurnoverApiView(APIView):
         df = pd.read_excel(filename)
     
         final = []
-        all_obj_target = Feature_Target(dataset=df)
+        all_obj_target = self.Feature_Target(dataset=df)
         for x in all_obj_target:
             feature = x['option'][0]
             target = x['option'][1]
@@ -54,20 +54,12 @@ class TurnoverApiView(APIView):
             for a, b in zip(X, Y):
                 value = {'label':a, 'data':b}
                 data.append(value)
-                
-            result = {'Code':x['kode'], 'data':data}
+            
+            result = {x['kode']:data}
             final.append(result)
 
-<<<<<<< HEAD
-        data = []
-        for x, y in zip(X, Y):
-            value = {'label': x, 'data': y}
-            data.append(value)
-
-        return data
-=======
         return final
->>>>>>> 1599c1c (mengubah feature)
+
 
     def post(self, request, *args, **kwargs):
         serializers = TurnoverSerializer(data=request.data)
@@ -99,7 +91,7 @@ class TurnoverApiView(APIView):
             filename = '_'.join(file.name.split())
             dirname = (os.path.dirname(
                 os.path.abspath(__file__)) + '/uploads/' + filename)
-
+            
             # read file from ./uploads and analyze
             data = self.Bar_plot(filename=dirname)
 
