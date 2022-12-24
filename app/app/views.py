@@ -15,7 +15,7 @@ def Feature_Target(dataset):
         elif n[0] == 'int' or n[0] == 'float':
             value.append(n['index'])
         else:
-            None
+            objek.append(n['index'])
     
     objek_value = []
     for x in objek:
