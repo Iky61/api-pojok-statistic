@@ -4,43 +4,17 @@ from rest_framework.response import Response
 from rest_framework import status
 from .serializers import TurnoverSerializer
 
+from  app.views import *
 import pandas as pd
 
 
 class TurnoverApiView(APIView):
-    # fungsi untuk menentukan feature dan target
-    def Feature_Target(self, dataset):
-        df = dataset
-        
-        type_ = pd.DataFrame(df.dtypes).reset_index()
-        
-        objek = []
-        value = []
-        for x in range(len(type_)):
-            n = type_.iloc[x]
-            if n[0] == 'O' or n[0] == 'str':
-                objek.append(n['index'])
-            elif n[0] == 'int' or n[0] == 'float':
-                value.append(n['index'])
-            else:
-                None
-        
-        objek_value = []
-        for x in objek:
-            for y in value:
-                name = x + ' to ' + y
-                feature_target = [x, y]
-                a = {'kode':name, 'option':feature_target}
-                objek_value.append(a)
-                
-        return objek_value
-
     # fungsi untuk mengirimkan data bar_plot
     def Bar_plot(self, filename):
         df = pd.read_excel(filename)
     
         final = []
-        all_obj_target = self.Feature_Target(dataset=df)
+        all_obj_target = Feature_Target(dataset=df)
         for x in all_obj_target:
             feature = x['option'][0]
             target = x['option'][1]
