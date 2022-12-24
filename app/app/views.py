@@ -20,7 +20,7 @@ def Feature_Target(dataset):
     objek_value = []
     for x in objek:
         for y in value:
-            name = x + ' to ' + y
+            name = (x + y).lower()
             feature_target = [x, y]
             a = {'kode':name, 'option':feature_target}
             objek_value.append(a)

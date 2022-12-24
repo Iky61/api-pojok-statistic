@@ -13,7 +13,7 @@ class TurnoverApiView(APIView):
     def Bar_plot(self, filename):
         df = pd.read_excel(filename)
     
-        final = []
+        final = {}
         all_obj_target = Feature_Target(dataset=df)
         for x in all_obj_target:
             feature = x['option'][0]
@@ -29,8 +29,7 @@ class TurnoverApiView(APIView):
                 value = {'label':a, 'data':b}
                 data.append(value)
             
-            result = {x['kode']:data}
-            final.append(result)
+            final[x['kode']] = data
 
         return final
 
