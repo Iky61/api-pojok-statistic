@@ -19,7 +19,7 @@ class TurnoverApiView(APIView):
             feature = x['option'][0]
             target = x['option'][1]
 
-            df1 = df.groupby([feature])[[target]].sum().reset_index()
+            df1 = df.groupby([feature])[[target]].sum().sort_values(target, ascending=False).reset_index()
 
             X = df1[feature].tolist()
             Y = df1[target].tolist()
