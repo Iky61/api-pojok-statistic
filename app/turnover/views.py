@@ -9,29 +9,46 @@ import pandas as pd
 
 
 class TurnoverApiView(APIView):
-    # fungsi untuk mengirimkan data bar_plot
-    def Bar_plot(self, filename):
+    def Omset_Analyst(self, filename):
         df = pd.read_excel(filename)
-    
-        final = {}
-        all_obj_target = Feature_Target(dataset=df)
-        for x in all_obj_target:
-            feature = x['option'][0]
-            target = x['option'][1]
-
-            df1 = df.groupby([feature])[[target]].sum().sort_values(target, ascending=False).reset_index()
-
-            X = df1[feature].tolist()
-            Y = df1[target].tolist()
-
-            data = []
-            for a, b in zip(X, Y):
-                value = {'label':a, 'data':b}
-                data.append(value)
-            
-            final[x['kode']] = data
-
-        return final
+        df = df[['Tanggal', 'User', 'Quantity', 'Total']]
+        df = df[df.Total > 100]
+        df = Time_Enginering(df)
+        df['User'] = df.User.apply(lambda x: x.split()[0].split('_')[0].split('(')[0])
+        df = df.groupby(['Tahun', 'No_Bulan', 'Bulan', 'User'])[['Quantity', 'Total', 'Nomor']].sum().reset_index()
+        df['Date'] = df.Bulan.apply(lambda x: str(x) + '-') + df.Tahun.apply(lambda x: str(x))
+        
+        DATA = {}
+        for x in df.No_Bulan.unique().tolist():
+            if x == 1:
+                n = df[df.No_Bulan == x]
+                value1 = []
+                for y in n.User.unique().tolist():
+                    value2 = {}
+                    m = n[n.User == y]
+                    value2["label"] = y
+                    value2["data"] = m.Total.tolist()[0]
+                    value1.append(value2)
+                DATA[n.Date.unique()[0]] = value1
+            else:
+                n = df[df.No_Bulan <= x]
+                value1 = []
+                for y in n[n.No_Bulan == x].User.unique().tolist():
+                    value2 = {}
+                    m = n[n.User == y]
+                    average = m[m.No_Bulan < x].Total.mean()
+                    condition = str(average)
+                    if condition == 'nan':
+                        value2["label"] = y
+                        value2["date"] = m[n.No_Bulan == x].Total.sum()
+                        value1.append(value2)
+                    else:
+                        value2["label"] = y
+                        value2["date"] = m[n.No_Bulan == x].Total.sum()
+                        value2["average"] = average
+                        value1.append(value2)
+                DATA[n.Date.unique()[-1]] = value1
+        return DATA
 
 
     def post(self, request, *args, **kwargs):
@@ -66,7 +83,7 @@ class TurnoverApiView(APIView):
                 os.path.abspath(__file__)) + '/uploads/' + filename)
             
             # read file from ./uploads and analyze
-            data = self.Bar_plot(filename=dirname)
+            data = self.Omset_Analyst(filename=dirname)
 
             os.remove(dirname)
 
