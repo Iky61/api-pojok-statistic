@@ -13,6 +13,7 @@ class TurnoverApiView(APIView):
         df = pd.read_excel(filename)
         df = df[['Tanggal', 'User', 'Quantity', 'Total']]
         df = df[df.Total > 100]
+        df['Total'] = df.Total - (df.Total * (df.Potongan/100))
         df = Time_Enginering(df)
         df['User'] = df.User.apply(lambda x: x.split()[0].split('_')[0].split('(')[0])
         df = df.groupby(['Tahun', 'No_Bulan', 'Bulan', 'User'])[['Quantity', 'Total', 'Nomor']].sum().reset_index()
@@ -27,7 +28,7 @@ class TurnoverApiView(APIView):
                     value2 = {}
                     m = n[n.User == y]
                     value2["label"] = y
-                    value2["data"] = m.Total.tolist()[0]
+                    value2["current"] = m.Total.tolist()[0]
                     value1.append(value2)
                 DATA[n.Date.unique()[0]] = value1
             else:
@@ -40,11 +41,11 @@ class TurnoverApiView(APIView):
                     condition = str(average)
                     if condition == 'nan':
                         value2["label"] = y
-                        value2["date"] = m[n.No_Bulan == x].Total.sum()
+                        value2["current"] = m[n.No_Bulan == x].Total.sum()
                         value1.append(value2)
                     else:
                         value2["label"] = y
-                        value2["date"] = m[n.No_Bulan == x].Total.sum()
+                        value2["current"] = m[n.No_Bulan == x].Total.sum()
                         value2["average"] = average
                         value1.append(value2)
                 DATA[n.Date.unique()[-1]] = value1

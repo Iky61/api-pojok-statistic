@@ -4,5 +4,5 @@ from .views import (
 )
 
 urlpatterns = [
-    path('turnover', TurnoverApiView.as_view()),
+    path('performance', TurnoverApiView.as_view()),
 ]
