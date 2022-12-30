@@ -11,7 +11,7 @@ import pandas as pd
 class TurnoverApiView(APIView):
     def Omset_Analyst(self, filename):
         df = pd.read_excel(filename)
-        df = df[['Tanggal', 'User', 'Quantity', 'Total']]
+        df = df[['Tanggal', 'User', 'Quantity', 'Total', 'Potongan']]
         df = df[df.Total > 100]
         df['Total'] = df.Total - (df.Total * (df.Potongan/100))
         df = Time_Enginering(df)
