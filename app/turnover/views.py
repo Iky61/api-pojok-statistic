@@ -59,9 +59,10 @@ class TurnoverApiView(APIView):
                         value2["current"] = m[n.No_Bulan == x].Total.sum()
                         value2["average"] = average
                         DATA['summary']['total'] += value2['current']
-                        DATA['summary']['average'] += value2['average']
                         value1.append(value2)
                 DATA['performance'][n.Date.unique()[-1]] = value1
+        data_length = len(df.No_Bulan.unique().tolist())
+        DATA['summary']['average'] = DATA['summary']['total'] / data_length
         return DATA
 
     def post(self, request, *args, **kwargs):
