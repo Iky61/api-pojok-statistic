@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from .serializers import TurnoverSerializer
 
-from  app.views import *
+from app.views import *
 import pandas as pd
 
 
@@ -15,11 +15,20 @@ class TurnoverApiView(APIView):
         df = df[df.Total > 100]
         df['Total'] = df.Total - (df.Total * (df.Potongan/100))
         df = Time_Enginering(df)
-        df['User'] = df.User.apply(lambda x: x.split()[0].split('_')[0].split('(')[0])
-        df = df.groupby(['Tahun', 'No_Bulan', 'Bulan', 'User'])[['Quantity', 'Total', 'Nomor']].sum().reset_index()
-        df['Date'] = df.Bulan.apply(lambda x: str(x) + '-') + df.Tahun.apply(lambda x: str(x))
-        
-        DATA = {}
+        df['User'] = df.User.apply(
+            lambda x: x.split()[0].split('_')[0].split('(')[0])
+        df = df.groupby(['Tahun', 'No_Bulan', 'Bulan', 'User'])[
+            ['Quantity', 'Total', 'Nomor']].sum().reset_index()
+        df['Date'] = df.Bulan.apply(lambda x: str(
+            x) + '-') + df.Tahun.apply(lambda x: str(x))
+
+        DATA = {
+            'summary': {
+                'total': 0,
+                'average': 0,
+            },
+            'performance': {}
+        }
         for x in df.No_Bulan.unique().tolist():
             if x == 1:
                 n = df[df.No_Bulan == x]
@@ -29,8 +38,9 @@ class TurnoverApiView(APIView):
                     m = n[n.User == y]
                     value2["label"] = y
                     value2["current"] = m.Total.tolist()[0]
+                    DATA['summary']['total'] += value2['current']
                     value1.append(value2)
-                DATA[n.Date.unique()[0]] = value1
+                DATA['performance'][n.Date.unique()[0]] = value1
             else:
                 n = df[df.No_Bulan <= x]
                 value1 = []
@@ -42,15 +52,17 @@ class TurnoverApiView(APIView):
                     if condition == 'nan':
                         value2["label"] = y
                         value2["current"] = m[n.No_Bulan == x].Total.sum()
+                        DATA['summary']['total'] += value2['current']
                         value1.append(value2)
                     else:
                         value2["label"] = y
                         value2["current"] = m[n.No_Bulan == x].Total.sum()
                         value2["average"] = average
+                        DATA['summary']['total'] += value2['current']
+                        DATA['summary']['average'] += value2['average']
                         value1.append(value2)
-                DATA[n.Date.unique()[-1]] = value1
+                DATA['performance'][n.Date.unique()[-1]] = value1
         return DATA
-
 
     def post(self, request, *args, **kwargs):
         serializers = TurnoverSerializer(data=request.data)
@@ -82,7 +94,7 @@ class TurnoverApiView(APIView):
             filename = '_'.join(file.name.split())
             dirname = (os.path.dirname(
                 os.path.abspath(__file__)) + '/uploads/' + filename)
-            
+
             # read file from ./uploads and analyze
             data = self.Omset_Analyst(filename=dirname)
 
